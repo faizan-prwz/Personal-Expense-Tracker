@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Budget Planner - Personal Expense Tracker{% endblock %}
+{% block header_title %}Monthly Budget Planner ({{ current_month }}){% endblock %}
+
+{% block content %}
+<div class="budget-container">
+    <div class="card section-card">
+        <h2>Set Category Budgets</h2>
+        <p class="section-desc">Define your monthly spending limit for each category below.</p>
+        <form method="POST" action="{{ url_for('budget_planner') }}" class="app-form">
+            <div class="budget-form-grid">
+                {% for cat in categories %}
+                <div class="form-group">
+                    <label for="budget_{{ cat }}">{{ cat }} ($)</label>
+                    <input type="number" step="0.01" min="0" id="budget_{{ cat }}" name="budget_{{ cat }}" value="{{ category_data[cat].budget }}" required>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Budgets</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card section-card">
+        <h2>Budget Performance & Progress</h2>
+        <div class="budget-cards-grid">
+            {% for cat, data in category_data.items() %}
+            <div class="budget-card {% if data.exceeded %}exceeded-border{% endif %}">
+                <div class="budget-card-header">
+                    <h3>{{ cat }}</h3>
+                    {% if data.exceeded %}
+                    <span class="badge error">Exceeded!</span>
+                    {% endif %}
+                </div>
+                <div class="budget-details">
+                    <p>Budget: <strong>${{ data.budget }}</strong></p>
+                    <p>Spent: <strong class="expense-text">${{ data.spent }}</strong></p>
+                    <p>Remaining: <strong class="{% if data.remaining >= 0 %}income-text{% else %}expense-text{% endif %}">${{ data.remaining }}</strong></p>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-info">
+                        <span>Usage</span>
+                        <span>{{ data.percentage }}%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-fill {{ data.status_class }}" style="width: {% if data.percentage > 100 %}100{% else %}{{ data.percentage }}{% endif %}%;"></div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

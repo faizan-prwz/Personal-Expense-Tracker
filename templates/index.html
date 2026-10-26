@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Personal Expense Tracker{% endblock %}
+{% block header_title %}Financial Dashboard ({{ current_month }}){% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <div class="card stat-card">
+        <h3>Total Income</h3>
+        <p class="stat-value income-text">${{ total_income }}</p>
+    </div>
+    <div class="card stat-card">
+        <h3>Total Expenses</h3>
+        <p class="stat-value expense-text">${{ total_expenses }}</p>
+    </div>
+    <div class="card stat-card">
+        <h3>Remaining Balance</h3>
+        <p class="stat-value {% if remaining_balance >= 0 %}income-text{% else %}expense-text{% endif %}">${{ remaining_balance }}</p>
+    </div>
+    <div class="card stat-card">
+        <h3>Monthly Budget</h3>
+        <p class="stat-value">${{ total_monthly_budget }}</p>
+    </div>
+    <div class="card stat-card full-width">
+        <h3>Budget Used</h3>
+        <div class="budget-overview">
+            <span class="stat-value">{{ budget_used_pct }}%</span>
+            <div class="progress-bar-container">
+                <div class="progress-fill {% if budget_used_pct < 75 %}progress-green{% elif budget_used_pct <= 100 %}progress-orange{% else %}progress-red{% endif %}" style="width: {% if budget_used_pct > 100 %}100{% else %}{{ budget_used_pct }}{% endif %}%;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-sections">
+    <div class="card section-card">
+        <div class="section-header">
+            <h2>Recent Transactions</h2>
+            <a href="{{ url_for('view_transactions') }}" class="btn-link">View All</a>
+        </div>
+        {% if recent_txs %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Title/Source</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in recent_txs %}
+                        <tr>
+                            <td>{{ t.date }}</td>
+                            <td>{{ t.title }}</td>
+                            <td><span class="badge {{ t.type | lower }}">{{ t.type }}</span></td>
+                            <td>{{ t.category }}</td>
+                            <td class="{% if t.type == 'Income' %}income-text{% else %}expense-text{% endif %}">
+                                {% if t.type == 'Income' %}+{% else %}-{% endif %}${{ t.amount }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="empty-msg">No transactions recorded yet. <a href="{{ url_for('add_income') }}">Add income</a> or <a href="{{ url_for('add_expense') }}">add expense</a> to get started.</p>
+        {% endif %}
+    </div>
+
+    <div class="card section-card">
+        <div class="section-header">
+            <h2>Category Expenses ({{ current_month }})</h2>
+        </div>
+        <div class="category-summary-list">
+            {% for cat, amt in category_expenses.items() %}
+            <div class="category-summary-item">
+                <span class="cat-name">{{ cat }}</span>
+                <span class="cat-amount">${{ amt }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

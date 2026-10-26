@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Transactions - Personal Expense Tracker{% endblock %}
+{% block header_title %}Transaction History{% endblock %}
+
+{% block content %}
+<div class="card section-card">
+    <div class="filter-container">
+        <form method="GET" action="{{ url_for('view_transactions') }}" class="filter-form">
+            <div class="filter-group">
+                <label for="category">Category:</label>
+                <select id="category" name="category">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="type">Type:</label>
+                <select id="type" name="type">
+                    <option value="">All Types</option>
+                    <option value="Income" {% if selected_type == 'Income' %}selected{% endif %}>Income</option>
+                    <option value="Expense" {% if selected_type == 'Expense' %}selected{% endif %}>Expense</option>
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="{{ url_for('view_transactions') }}" class="btn btn-secondary">Reset</a>
+            </div>
+        </form>
+        <div class="action-top">
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">&larr; Back to Dashboard</a>
+        </div>
+    </div>
+
+    {% if transactions %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Date</th>
+                        <th>Title / Source</th>
+                        <th>Type</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transactions %}
+                    <tr>
+                        <td>#{{ t.id }}</td>
+                        <td>{{ t.date }}</td>
+                        <td><strong>{{ t.title }}</strong></td>
+                        <td><span class="badge {{ t.type | lower }}">{{ t.type }}</span></td>
+                        <td>{{ t.category }}</td>
+                        <td class="{% if t.type == 'Income' %}income-text{% else %}expense-text{% endif %}">
+                            {% if t.type == 'Income' %}+{% else %}-{% endif %}${{ t.amount }}
+                        </td>
+                        <td>{{ t.description if t.description else '-' }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('delete_transaction', transaction_id=t.id) }}" style="display:inline;">
+                                <button type="submit" class="btn-danger-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <p class="empty-msg">No transactions found matching your criteria.</p>
+            <a href="{{ url_for('view_transactions') }}" class="btn btn-primary">View All Transactions</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

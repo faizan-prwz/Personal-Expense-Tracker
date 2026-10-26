@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Financial Summary - Personal Expense Tracker{% endblock %}
+{% block header_title %}Financial Summary ({{ current_month }}){% endblock %}
+
+{% block content %}
+<div class="summary-grid">
+    <div class="card summary-card">
+        <h3>Total Monthly Income</h3>
+        <p class="summary-value income-text">${{ total_income }}</p>
+    </div>
+    <div class="card summary-card">
+        <h3>Total Monthly Expenses</h3>
+        <p class="summary-value expense-text">${{ total_expenses }}</p>
+    </div>
+    <div class="card summary-card">
+        <h3>Net Balance (This Month)</h3>
+        <p class="summary-value {% if remaining_balance >= 0 %}income-text{% else %}expense-text{% endif %}">${{ remaining_balance }}</p>
+    </div>
+    <div class="card summary-card">
+        <h3>Highest Spending Category</h3>
+        <p class="summary-value highlight-text">{{ highest_category }}</p>
+    </div>
+    <div class="card summary-card">
+        <h3>Total Transactions Recorded</h3>
+        <p class="summary-value">{{ num_transactions }}</p>
+    </div>
+</div>
+
+<div class="card section-card">
+    <h2>Category-wise Expense Breakdown</h2>
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Total Spent</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cat, amt in category_expenses.items() %}
+                <tr>
+                    <td><strong>{{ cat }}</strong></td>
+                    <td class="expense-text">${{ amt }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
